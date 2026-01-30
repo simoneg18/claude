@@ -1,0 +1,117 @@
+# TCG Monitor Configuration
+# ===========================================
+# Edit this file to configure your monitoring settings
+# ===========================================
+
+# Global settings
+polling_interval: 30  # seconds between monitoring cycles (min: 10, max: 300)
+max_concurrent_scrapers: 5
+log_level: INFO  # DEBUG, INFO, WARNING, ERROR
+
+# ===========================================
+# TARGET KEYWORDS
+# ===========================================
+# Products must match at least one keyword from BOTH 'sets' AND 'product_types'
+# This prevents false positives (e.g., single cards, sleeves, etc.)
+keywords:
+  sets:
+    - "OP15"
+    - "OP-15"
+    - "OP16"
+    - "OP-16"
+    - "OP17"
+    - "OP-17"
+    # Add more set codes as needed:
+    # - "OP18"
+    # - "Starter Deck"
+  product_types:
+    - "Booster Box"
+    - "Display"
+    - "Box Bustina"
+    - "Box Buste"
+    - "Busta"
+    # Add more product types as needed:
+    # - "Starter Deck"
+    # - "Premium Pack"
+
+# ===========================================
+# DISCORD NOTIFICATIONS
+# ===========================================
+discord:
+  webhook_url: "${DISCORD_WEBHOOK_URL}"  # Set in .env file
+  mention_role_id: null  # Optional: Discord role ID to mention (e.g., "123456789")
+
+# ===========================================
+# RETAILERS CONFIGURATION
+# ===========================================
+# Add, remove, or modify retailers below
+# Set enabled: false to temporarily disable a retailer
+
+retailers:
+  # -----------------------------------------
+  # GameStop Italy
+  # -----------------------------------------
+  - name: "GameStop Italy"
+    enabled: true
+    scraper_type: "gamestop_it"
+    urls:
+      - "https://www.gamestop.it/SearchResult/QuickSearch?q=one+piece+booster+box"
+      # Add more search URLs if needed:
+      # - "https://www.gamestop.it/SearchResult/QuickSearch?q=one+piece+display"
+    selectors:
+      product_card: "div.product-tile"
+      title: "h3.product-name a"
+      price: "span.sales span.value"
+      availability: "button.add-to-cart:not([disabled])"
+      link: "h3.product-name a"
+    use_playwright: false
+
+  # -----------------------------------------
+  # Amazon Italy
+  # -----------------------------------------
+  - name: "Amazon Italy"
+    enabled: false  # Set to true when ready to use
+    scraper_type: "amazon_it"
+    urls:
+      - "https://www.amazon.it/s?k=one+piece+booster+box"
+    selectors:
+      product_card: "div[data-component-type='s-search-result']"
+      title: "h2 a span"
+      price: "span.a-price-whole"
+      availability: "span.a-color-success"
+      link: "h2 a"
+    use_playwright: false  # Amazon often blocks Playwright
+
+  # -----------------------------------------
+  # Cardmarket
+  # -----------------------------------------
+  - name: "Cardmarket"
+    enabled: false  # Set to true when ready to use
+    scraper_type: "cardmarket"
+    urls:
+      - "https://www.cardmarket.com/it/OnePiece/Products/Booster-Boxes"
+    selectors:
+      product_card: "div.col-12.col-md-6.col-lg-4"
+      title: "div.product-name"
+      price: "span.font-weight-bold"
+      availability: "button.btn-primary"
+      link: "a.card"
+    use_playwright: true  # Cardmarket requires JavaScript rendering
+
+  # -----------------------------------------
+  # TEMPLATE: Add New Retailer
+  # -----------------------------------------
+  # Copy this template and customize for new retailers:
+  #
+  # - name: "New Retailer Name"
+  #   enabled: true
+  #   scraper_type: "generic"  # Use "generic" for new sites
+  #   urls:
+  #     - "https://example.com/search?q=one+piece+booster+box"
+  #   selectors:
+  #     product_card: "div.product-item"  # CSS selector for product container
+  #     title: "h2.product-title"          # CSS selector for product title
+  #     price: "span.price"                # CSS selector for price
+  #     availability: "button.add-to-cart" # CSS selector for availability indicator
+  #     link: "a.product-link"             # CSS selector for product link
+  #   use_playwright: false  # Set true if site uses JavaScript rendering
